@@ -1,0 +1,31 @@
+name: Update README with numerically sorted file list
+
+on:
+  push:
+    branches:
+      - main  # Adjust if you use a different default branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Sort and update README.md
+      run: |
+        # Generate numerically sorted file list
+        file_list=$(find . -type f | grep -v -e '^\./\.' | grep -v -e 'README.md' | sort -V)
+        sorted_files=$(echo "$file_list" | sed 's/^/    - /')
+
+        # Update README.md
+        echo -e "# Project Files\n\n$sorted_files" > README.md
+
+        # Commit and push changes
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add README.md
+        git commit -m "Update README.md with numerically sorted file list"
+        git push
